@@ -13,10 +13,11 @@ enum class CellState { dead = 0, alive = 1 };
 
 class abstract_grid {
   protected:
-    uint64_t width;
-    uint64_t height;
+    const uint64_t width;
+    const uint64_t height;
 
   public:
+    abstract_grid(uint64_t w, uint64_t h);
     virtual CellState get_elem(int64_t i, int64_t j) const = 0;
     virtual void set_elem(int64_t i, int64_t j, CellState val) = 0;
     virtual void run_gol_step() = 0;
@@ -26,13 +27,13 @@ class abstract_grid {
 class vector_grid : public abstract_grid {
   private:
     std::vector<CellState> field;
-    uint64_t calc_neighbors(int64_t i, int64_t j);
+    uint64_t calc_neighbors(int64_t i, int64_t j) const;
 
   public:
-    vector_grid(int w, int h, float prob);
-    CellState get_elem(int64_t i, int64_t j) const;
-    void set_elem(int64_t i, int64_t j, CellState val);
-    void run_gol_step();
+    vector_grid(uint64_t w, uint64_t h, float prob);
+    CellState get_elem(int64_t i, int64_t j) const override;
+    void set_elem(int64_t i, int64_t j, CellState val) override;
+    void run_gol_step() override;
 };
 
 class set_grid : public abstract_grid {
@@ -52,10 +53,10 @@ class set_grid : public abstract_grid {
     auto moore_neighborhood(const coord_t &base) const;
 
   public:
-    set_grid(int w, int h, float prob);
-    CellState get_elem(int64_t i, int64_t j) const;
-    void set_elem(int64_t i, int64_t j, CellState val);
-    void run_gol_step();
+    set_grid(uint64_t w, uint64_t h, float prob);
+    CellState get_elem(int64_t i, int64_t j) const override;
+    void set_elem(int64_t i, int64_t j, CellState val) override;
+    void run_gol_step() override;
 };
 
 } // namespace grid

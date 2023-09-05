@@ -17,8 +17,7 @@ int main(void) {
     const uint box_width = WIDTH / BOX_DIMENSION;
     const uint box_height = HEIGHT / BOX_DIMENSION;
 
-    grid::abstract_grid *grid =
-        new grid::set_grid(box_width, box_height, 0.5);
+    grid::abstract_grid *grid = new grid::set_grid(box_width, box_height, 0.5);
 
     while (!WindowShouldClose()) {
         BeginDrawing();

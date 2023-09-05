@@ -7,13 +7,11 @@
 
 namespace grid {
 
-set_grid::set_grid(int w, int h, float prob) {
+set_grid::set_grid(uint64_t w, uint64_t h, float prob) : abstract_grid(w, h) {
     std::random_device d;
     std::mt19937 rng(d());
     std::uniform_int_distribution<> w_dist(0, w);
     std::uniform_int_distribution<> h_dist(0, h);
-    this->width = w;
-    this->height = h;
     for (uint64_t i = 0; i < w * h * prob; ++i) {
         this->field.insert({w_dist(rng), h_dist(rng)});
     }
