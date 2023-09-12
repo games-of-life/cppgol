@@ -2,7 +2,6 @@
 #define GRID_H_
 
 #include <cstdint>
-#include <ranges>
 #include <tuple>
 #include <unordered_set>
 #include <vector>

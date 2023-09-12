@@ -57,7 +57,7 @@ void set_grid::run_gol_step() {
         }) |
         views::join;
 
-    auto in_bound_points =
+    std::vector<coord_t> in_bound_points =
         valuable_points | views::filter([*this](const coord_t &point) {
             return !(std::get<0>(point) < 0 || std::get<1>(point) < 0 ||
                      std::get<0>(point) >= this->width ||
@@ -75,15 +75,17 @@ void set_grid::run_gol_step() {
                            return std::tuple{gr.front(), ranges::distance(gr)};
                        });
 
-    auto new_field = frequencies |
-                     views::filter([*this](const auto &coord_freq) {
-                         auto [coord, freq] = coord_freq;
-                         return (3 == freq) || ((2 == freq) && (CellState::alive == this->get_elem(std::get<0>(coord), std::get<1>(coord))));
-                     }) |
-                     views::transform([](const auto &coord_freq) {
-                         return std::get<0>(coord_freq);
-                     }) |
-                     ranges::to<std::unordered_set<coord_t, coord_hash>>;
+    std::unordered_set<coord_t, coord_hash> new_field =
+        frequencies | views::filter([*this](const auto &coord_freq) {
+            auto [coord, freq] = coord_freq;
+            return (3 == freq) ||
+                   ((2 == freq) &&
+                    (CellState::alive ==
+                     this->get_elem(std::get<0>(coord), std::get<1>(coord))));
+        }) |
+        views::transform(
+            [](const auto &coord_freq) { return std::get<0>(coord_freq); }) |
+        ranges::to<std::unordered_set<coord_t, coord_hash>>;
 
     std::swap(this->field, new_field);
 }
