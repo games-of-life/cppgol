@@ -50,8 +50,6 @@ class set_grid : public abstract_grid {
 
     std::unordered_set<coord_t, coord_hash> field;
 
-    auto moore_neighborhood(const coord_t &base) const;
-
   public:
     set_grid(uint64_t w, uint64_t h, float prob);
     CellState get_elem(int64_t i, int64_t j) const override;

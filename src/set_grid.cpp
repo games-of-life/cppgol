@@ -1,13 +1,19 @@
 #include "grid/grid.hpp"
-#include <algorithm>
-#include <array>
+#include "range/v3/range/conversion.hpp"
+#include "range/v3/view/cartesian_product.hpp"
+#include "range/v3/view/chunk_by.hpp"
+#include "range/v3/view/filter.hpp"
+#include "range/v3/view/iota.hpp"
+#include "range/v3/view/join.hpp"
+#include "range/v3/view/transform.hpp"
 #include <random>
-#include <unordered_map>
-#include <unordered_set>
 
 namespace grid {
 
-set_grid::set_grid(uint64_t w, uint64_t h, float prob) : abstract_grid(w, h) {
+using namespace ranges;
+
+set_grid::set_grid(uint64_t w, uint64_t h, float prob)
+    : abstract_grid(w, h) {
     std::random_device d;
     std::mt19937 rng(d());
     std::uniform_int_distribution<> w_dist(0, w);
@@ -32,52 +38,52 @@ void set_grid::set_elem(int64_t i, int64_t j, CellState val) {
 }
 
 void set_grid::run_gol_step() {
-    std::array<coord_t, 8> moore_neighbors{
-        coord_t{-1, -1}, coord_t{-1, 0}, coord_t{-1, 1}, coord_t{0, -1},
-        coord_t{0, 1},   coord_t{1, -1}, coord_t{1, 0},  coord_t{1, 1}};
+    auto moore_neighborhood = [](const coord_t &coord) {
+        auto [i, j] = coord;
+        return views::cartesian_product(view::iota(-1, 2), view::iota(-1, 2)) |
+               views::filter([](const std::tuple<int, int> &x) {
+                   return !(0 == std::get<0>(x) && 0 == std::get<1>(x));
+               }) |
+               views::transform([i, j](const std::tuple<int, int> &x) {
+                   auto [dx, dy] = x;
+                   return coord_t{i + dx, j + dy};
+               });
+    };
 
-    std::vector<coord_t> valuable_points;
-    std::for_each(
-        this->field.begin(), this->field.end(),
-        [*this, &valuable_points, &moore_neighbors](const coord_t &cur) {
-            for (const coord_t &neigh :
-                 moore_neighbors |
-                     std::views::transform(
-                         [&cur](const coord_t &offset) -> const coord_t {
-                             return {std::get<0>(offset) + std::get<0>(cur),
-                                     std::get<1>(offset) + std::get<1>(cur)};
-                         })) {
-                valuable_points.push_back(neigh);
-            }
-        });
+    auto valuable_points =
+        this->field |
+        views::transform([&moore_neighborhood](const coord_t &cur) {
+          return moore_neighborhood(cur);
+        }) |
+        views::join;
 
-    std::unordered_map<coord_t, uint64_t, coord_hash> frequencies;
-    for (const coord_t &cur :
-         valuable_points | std::views::filter([*this](const coord_t &point) {
-             return !(std::get<0>(point) < 0 || std::get<1>(point) < 0 ||
-                      std::get<0>(point) >= this->width ||
-                      std::get<1>(point) >= this->height);
-         })) {
-        if (frequencies.contains(cur)) {
-            frequencies[cur] += 1;
-        } else {
-            frequencies[cur] = 1;
-        }
-    }
+    auto in_bound_points =
+        valuable_points | views::filter([*this](const coord_t &point) {
+            return !(std::get<0>(point) < 0 || std::get<1>(point) < 0 ||
+                     std::get<0>(point) >= this->width ||
+                     std::get<1>(point) >= this->height);
+        }) | ranges::to<std::vector>;
 
-    std::unordered_set<coord_t, coord_hash> new_field;
-    for (const auto &[coord, _] :
-         frequencies |
-             std::views::filter(
-                 [*this](const std::pair<coord_t, uint64_t> &cur) {
-                     return (3 == cur.second) ||
-                            (2 == cur.second &&
-                             CellState::alive ==
-                                 this->get_elem(std::get<0>(cur.first),
-                                                std::get<1>(cur.first)));
-                 })) {
-        new_field.insert(coord);
-    }
+    std::sort(in_bound_points.begin(), in_bound_points.end());
+
+    auto frequencies = in_bound_points |
+                       views::chunk_by([](const coord_t &a, const coord_t &b) {
+                           return std::get<0>(a) == std::get<0>(b) &&
+                                  std::get<1>(a) == std::get<1>(b);
+                       }) |
+                       views::transform([](const auto &gr) {
+                           return std::tuple{gr.front(), ranges::distance(gr)};
+                       });
+
+    auto new_field = frequencies |
+                     views::filter([*this](const auto &coord_freq) {
+                         auto [coord, freq] = coord_freq;
+                         return (3 == freq) || ((2 == freq) && (CellState::alive == this->get_elem(std::get<0>(coord), std::get<1>(coord))));
+                     }) |
+                     views::transform([](const auto &coord_freq) {
+                         return std::get<0>(coord_freq);
+                     }) |
+                     ranges::to<std::unordered_set<coord_t, coord_hash>>;
 
     std::swap(this->field, new_field);
 }

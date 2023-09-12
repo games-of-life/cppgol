@@ -28,7 +28,16 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(raylib)
 
+FetchContent_Declare(
+    range-v3
+    GIT_REPOSITORY "https://github.com/ericniebler/range-v3.git"
+    GET_TAG "master"
+    GIT_PROGRESS TRUE
+)
+
+FetchContent_MakeAvailable(range-v3)
+
 file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 add_executable(cppgol ${SOURCES})
-target_link_libraries(cppgol raylib)
+target_link_libraries(cppgol raylib range-v3)
