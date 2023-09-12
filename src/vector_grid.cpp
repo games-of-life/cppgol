@@ -26,7 +26,7 @@ void vector_grid::set_elem(int64_t i, int64_t j, CellState val) {
 }
 
 uint64_t vector_grid::calc_neighbors(int64_t i, int64_t j) const {
-    uint count = 0;
+    uint64_t count = 0;
     for (long i_cor = i - 1; i_cor <= i + 1; i_cor++) {
         for (long j_cor = j - 1; j_cor <= j + 1; j_cor++) {
             if (!((i_cor == i && j_cor == j) || (i_cor < 0 || j_cor < 0) ||
@@ -42,8 +42,8 @@ uint64_t vector_grid::calc_neighbors(int64_t i, int64_t j) const {
 void vector_grid::run_gol_step() {
     std::vector<CellState> field_copy(this->width * this->height);
 
-    for (uint i = 0; i < this->width; ++i) {
-        for (uint j = 0; j < this->height; ++j) {
+    for (uint64_t i = 0; i < this->width; ++i) {
+        for (uint64_t j = 0; j < this->height; ++j) {
             uint64_t neigh = this->calc_neighbors(i, j);
             if ((3 == neigh) ||
                 (2 == neigh && CellState::alive == this->get_elem(i, j))) {

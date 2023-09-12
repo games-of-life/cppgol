@@ -14,8 +14,8 @@ int main(void) {
 
     SetTargetFPS(30);
 
-    const uint box_width = WIDTH / BOX_DIMENSION;
-    const uint box_height = HEIGHT / BOX_DIMENSION;
+    const uint64_t box_width = WIDTH / BOX_DIMENSION;
+    const uint64_t box_height = HEIGHT / BOX_DIMENSION;
 
     grid::abstract_grid *grid = new grid::set_grid(box_width, box_height, 0.5);
 

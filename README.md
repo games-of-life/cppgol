@@ -6,7 +6,6 @@ All graphics done with [Raylib](https://www.raylib.com/)
 
 ## Installation
 
-Install raylib.
 CMake is used to build.
 
 ## Usage
