@@ -22,7 +22,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 FetchContent_Declare(
     raylib
     GIT_REPOSITORY "https://github.com/raysan5/raylib.git"
-    GIT_TAG "master"
+    GIT_TAG "4.5.0"
     GIT_PROGRESS TRUE
 )
 
@@ -31,7 +31,7 @@ FetchContent_MakeAvailable(raylib)
 FetchContent_Declare(
     range-v3
     GIT_REPOSITORY "https://github.com/ericniebler/range-v3.git"
-    GET_TAG "master"
+    GET_TAG "v0.12.0"
     GIT_PROGRESS TRUE
 )
 
