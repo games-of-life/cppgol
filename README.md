@@ -6,22 +6,28 @@ All graphics done with [Raylib](https://www.raylib.com/)
 
 ## Installation
 
-CMake is used to build.
+Conan is used for dependency management. CMake is used to build.
 
 ## Usage
 
 Before compiling you can choose the implementation by compiling with either `vector_grid` or `set_grid`.
 
-To compile into executable:
+To install dependencies:
 
 ```bash
-mkdir build && cd build
-cmake ..
-make
+conan install . --output-folder=build --build=missing
 ```
+
+To build:
+
+```bash
+cmake --preset conan-release
+cmake --build build
+```
+
 
 To run executable:
 
 ```bash
-./cppgol
+./build/cppgol
 ```
